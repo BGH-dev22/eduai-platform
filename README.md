@@ -378,12 +378,3 @@ Les contributions sont les bienvenues !
 
 ---
 
-<div align="center">
-
-### ⭐ Si ce projet vous a été utile, n'hésitez pas à lui donner une étoile ! ⭐
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="line" width="100%">
-
-**Made with ❤️ and ☕**
-
-</div>
