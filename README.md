@@ -361,17 +361,8 @@ Les contributions sont les bienvenues !
 4. 📤 **Push** vers la branche (`git push origin feature/NouvelleFonctionnalite`)
 5. 🔃 **Ouvrir** une Pull Request
 
----
 
-## 📄 Licence
 
-Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
----
-
-## 👤 Auteur
-
-**Votre Nom**
 
 [![GitHub](https://img.shields.io/badge/GitHub-@votreusername-181717?style=flat-square&logo=github)](https://github.com/votreusername)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profil-0077B5?style=flat-square&logo=linkedin)](https://linkedin.com/in/votreprofil)
