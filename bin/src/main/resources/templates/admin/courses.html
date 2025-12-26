@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Cours</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; 
+                 display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-brand { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .navbar-user { display: flex; align-items: center; gap: 20px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; 
+              display: inline-block; font-size: 14px; transition: all 0.3s; margin: 2px; }
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .alert { padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-secondary { background: #e2e3e5; color: #383d41; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🎓 Admin - Cours</a>
+        <div class="navbar-user">
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-logout">Se déconnecter</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <div class="header">
+            <h1 style="color: #333;">Gestion des cours</h1>
+            <a href="/admin/courses/new" class="btn btn-primary">➕ Nouveau cours</a>
+        </div>
+        
+        <div class="content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Statut</th>
+                        <th>Indexation</th>
+                        <th>Inscrits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(courses)}">
+                        <td colspan="5" style="text-align: center; color: #999;">Aucun cours pour le moment</td>
+                    </tr>
+                    <tr th:each="course : ${courses}">
+                        <td>
+                            <strong th:text="${course.title}"></strong><br>
+                            <small style="color: #666;" th:text="${#strings.abbreviate(course.description, 50)}"></small>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${course.published ? 'badge-success' : 'badge-secondary'}" 
+                                  th:text="${course.published ? 'Publié' : 'Brouillon'}"></span>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="${course.indexed ? 'badge-info' : 'badge-secondary'}" 
+                                  th:text="${course.indexed ? 'Indexé' : 'Non indexé'}"></span>
+                        </td>
+                        <td th:text="${#sets.size(course.enrolledStudents)}">0</td>
+                        <td>
+                            <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-info">✏️ Modifier</a>
+                            <a th:if="${!course.published}" 
+                               th:href="@{/admin/courses/{id}/publish(id=${course.id})}" 
+                               class="btn btn-success">📤 Publier</a>
+                            <a th:if="${course.published && !course.indexed}" 
+                               th:href="@{/admin/courses/{id}/index(id=${course.id})}" 
+                               class="btn btn-warning">🔍 Indexer</a>
+                            <a th:href="@{/admin/courses/{id}/enrollments(id=${course.id})}" 
+                               class="btn btn-primary">👥 Inscrire</a>
+                            <a th:href="@{/admin/courses/{id}/delete(id=${course.id})}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')">🗑️ Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

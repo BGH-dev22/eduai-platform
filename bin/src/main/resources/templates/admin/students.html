@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Étudiants</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; 
+                 display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .navbar-user { display: flex; align-items: center; gap: 20px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; 
+              display: inline-block; font-size: 14px; margin: 2px; }
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .alert { padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🎓 Admin - Étudiants</a>
+        <div class="navbar-user">
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-logout">Se déconnecter</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div class="header">
+            <h1 style="color: #333;">Gestion des étudiants</h1>
+            <a href="/admin/students/new" class="btn btn-primary">➕ Nouvel étudiant</a>
+        </div>
+        
+        <div class="content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom complet</th>
+                        <th>Nom d'utilisateur</th>
+                        <th>Email</th>
+                        <th>Cours inscrits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(students)}">
+                        <td colspan="5" style="text-align: center; color: #999;">Aucun étudiant inscrit</td>
+                    </tr>
+                    <tr th:each="student : ${students}">
+                        <td th:text="${student.fullName}"></td>
+                        <td th:text="${student.username}"></td>
+                        <td th:text="${student.email}"></td>
+                        <td>
+                            <span class="badge" th:text="${#sets.size(student.enrolledCourses)} + ' cours'"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/students/{id}/edit(id=${student.id})}" class="btn btn-info">✏️ Modifier</a>
+                            <a th:href="@{/admin/students/{id}/delete(id=${student.id})}" 
+                               class="btn btn-danger"
+                               onclick="return confirm('Supprimer cet étudiant ?')">🗑️ Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

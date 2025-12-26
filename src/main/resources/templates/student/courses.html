@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Cours - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success">
+                <span>✓</span> <span th:text="${success}"></span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📖 Mes cours</h1>
+                    <p class="page-subtitle">Accédez à vos cours et commencez à apprendre</p>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(courses)}" class="content-section">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📚</div>
+                    <h4>Aucun cours inscrit</h4>
+                    <p>Contactez votre administrateur pour vous inscrire à des cours.</p>
+                </div>
+            </div>
+            
+            <div class="courses-grid" th:unless="${#lists.isEmpty(courses)}">
+                <div th:each="course : ${courses}" class="course-card">
+                    <div class="course-card-header">
+                        📖
+                        <span th:if="${course.indexed}" class="ai-badge">🤖 IA</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h4 th:text="${course.title}">Titre du cours</h4>
+                        <p th:text="${#strings.abbreviate(course.description, 100)}">Description du cours</p>
+                    </div>
+                    <div class="course-card-footer">
+                        <a th:href="@{/student/courses/{id}(id=${course.id})}" class="btn btn-primary">
+                            📚 Accéder au cours
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

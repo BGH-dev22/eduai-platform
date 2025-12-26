@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Étudiants - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item active">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success">
+                ✓ <span th:text="${success}"></span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">👥 Gestion des étudiants</h1>
+                    <p class="page-subtitle">Gérez les comptes étudiants de votre plateforme</p>
+                </div>
+                <a th:href="@{/admin/students/new}" class="btn btn-primary">
+                    ➕ Nouvel étudiant
+                </a>
+            </div>
+            
+            <div class="content-section">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Étudiant</th>
+                                <th>Identifiant</th>
+                                <th>Email</th>
+                                <th>Cours inscrits</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="student : ${students}">
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar" style="width: 40px; height: 40px; font-size: 0.9rem;">
+                                            <span th:text="${#strings.substring(student.fullName, 0, 1)}">E</span>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);" th:text="${student.fullName}">Nom</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-purple" th:text="${student.username}">username</span>
+                                </td>
+                                <td style="color: var(--text-secondary);" th:text="${student.email}">email@example.com</td>
+                                <td>
+                                    <span class="badge badge-info" th:text="${#sets.size(student.enrolledCourses)} + ' cours'">0 cours</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/admin/students/{id}/edit(id=${student.id})}" class="btn btn-secondary btn-sm">
+                                            ✏️ Modifier
+                                        </a>
+                                        <a th:href="@{/admin/students/{id}/delete(id=${student.id})}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Supprimer cet étudiant ?')">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(students)}" class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <h4>Aucun étudiant</h4>
+                    <p>Ajoutez votre premier étudiant pour commencer.</p>
+                    <a th:href="@{/admin/students/new}" class="btn btn-primary">➕ Nouvel étudiant</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

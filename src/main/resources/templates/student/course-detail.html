@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.title} + ' - EduAI'">Détail du cours</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/student/courses}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux cours
+                    </a>
+                    <h1 class="page-title" th:text="${course.title}">Titre du cours</h1>
+                    <p class="page-subtitle" th:text="${course.description}">Description</p>
+                </div>
+            </div>
+            
+            <!-- Quiz IA Section -->
+            <div th:if="${canGenerateQuiz}" class="content-section" 
+                 style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid rgba(102, 126, 234, 0.3);">
+                <div class="section-header">
+                    <h3 class="section-title" style="color: var(--accent-purple);">
+                        🤖 Quiz IA Génératif
+                    </h3>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Générez un quiz personnalisé basé sur ce cours grâce à notre IA agentique.
+                </p>
+                
+                <form th:action="@{/student/courses/{id}/generate-quiz(id=${course.id})}" method="post" 
+                      style="display: flex; gap: 1.5rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Niveau de difficulté</label>
+                        <select name="difficulty" class="form-control" style="min-width: 220px;">
+                            <option value="BEGINNER">🌱 Débutant</option>
+                            <option value="INTERMEDIATE">📚 Intermédiaire</option>
+                            <option value="ADVANCED">🎯 Avancé</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Nombre de questions</label>
+                        <select name="numQuestions" class="form-control" style="min-width: 150px;">
+                            <option value="5">5 questions</option>
+                            <option value="10" selected>10 questions</option>
+                            <option value="15">15 questions</option>
+                            <option value="20">20 questions</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        🚀 Générer le Quiz
+                    </button>
+                </form>
+            </div>
+            
+            <div th:unless="${canGenerateQuiz}" class="alert alert-warning">
+                ⚠️ Ce cours n'a pas encore été indexé. La génération de quiz IA n'est pas disponible.
+            </div>
+            
+            <!-- Évaluations du Professeur -->
+            <div class="content-section" style="margin-top: 1.5rem; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3);">
+                <div class="section-header">
+                    <h3 class="section-title" style="color: var(--accent-orange);">
+                        📝 Évaluations du Professeur
+                    </h3>
+                    <a th:href="@{/student/courses/{id}/evaluations(id=${course.id})}" class="btn btn-primary btn-sm" 
+                       style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+                        📋 Voir les évaluations
+                    </a>
+                </div>
+                <p style="color: var(--text-secondary); margin: 0;">
+                    Passez les évaluations créées par votre professeur. Seuil de réussite: <strong style="color: var(--accent-green);">70%</strong>
+                </p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem;">
+                <!-- Contenu du cours -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">📖 Contenu du cours</h3>
+                    </div>
+                    <div style="line-height: 1.8; color: var(--text-secondary); white-space: pre-wrap;" th:text="${course.content}">
+                        Contenu du cours...
+                    </div>
+                </div>
+                
+                <!-- Ressources Sidebar -->
+                <div>
+                    <div class="content-section" style="position: sticky; top: 2rem;">
+                        <div class="section-header">
+                            <h3 class="section-title">📚 Ressources</h3>
+                        </div>
+                        
+                        <!-- Fichiers -->
+                        <div th:if="${course.files != null && !course.files.isEmpty()}">
+                            <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase;">
+                                📄 Documents
+                            </h4>
+                            <ul class="resource-list" style="margin-bottom: 1.5rem;">
+                                <li th:each="file : ${course.files}" class="resource-item">
+                                    <div class="resource-icon pdf">
+                                        <span th:if="${file.contentType.contains('pdf')}">📕</span>
+                                        <span th:unless="${file.contentType.contains('pdf')}">📎</span>
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-name" th:text="${file.originalFilename}">Fichier</div>
+                                        <div class="resource-meta" th:text="${(file.size / 1024)} + ' Ko'">Taille</div>
+                                    </div>
+                                    <a th:href="@{'/student/courses/' + ${course.id} + '/files/' + ${file.id}}" 
+                                       class="btn btn-secondary btn-sm" target="_blank">⬇️</a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Vidéos -->
+                        <div th:if="${videoLinks != null && !videoLinks.isEmpty()}">
+                            <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase;">
+                                🎬 Vidéos
+                            </h4>
+                            <ul class="resource-list">
+                                <li th:each="link : ${videoLinks}" class="resource-item">
+                                    <div class="resource-icon video">▶️</div>
+                                    <div class="resource-info" style="overflow: hidden;">
+                                        <div class="resource-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:text="${link}">Lien</div>
+                                    </div>
+                                    <a th:href="${link}" class="btn btn-danger btn-sm" target="_blank">▶️</a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div th:if="${(course.files == null || course.files.isEmpty()) && (videoLinks == null || videoLinks.isEmpty())}" 
+                             class="empty-state" style="padding: 1rem;">
+                            <p style="font-size: 0.85rem;">Aucune ressource disponible</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historique des quiz -->
+            <div class="content-section" style="margin-top: 1.5rem;" th:if="${attempts != null && !#lists.isEmpty(attempts)}">
+                <div class="section-header">
+                    <h3 class="section-title">📊 Historique des quiz</h3>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Difficulté</th>
+                                <th>Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="attempt : ${attempts}">
+                                <td th:text="${#temporals.format(attempt.completedAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${attempt.difficulty.name() == 'BEGINNER'} ? 'badge-success' : (${attempt.difficulty.name() == 'INTERMEDIATE'} ? 'badge-warning' : 'badge-danger')"
+                                          th:text="${attempt.difficulty.name()}">Difficulté</span>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${attempt.scorePercentage >= 70} ? 'badge-success' : 'badge-danger'"
+                                          th:text="${attempt.score} + '/' + ${attempt.totalQuestions} + ' (' + ${#numbers.formatDecimal(attempt.scorePercentage, 1, 0)} + '%)'">Score</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/student/quiz/{id}/results(id=${attempt.id})}" class="btn btn-secondary btn-sm">
+                                        👁️ Détails
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

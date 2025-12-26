@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.id != null} ? 'Modifier l\'étudiant' : 'Nouvel étudiant'">Formulaire étudiant - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item active">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/admin/students}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux étudiants
+                    </a>
+                    <h1 class="page-title" th:text="${user.id != null} ? '✏️ Modifier l\'étudiant' : '➕ Nouvel étudiant'">Formulaire</h1>
+                    <p class="page-subtitle" th:text="${user.id != null} ? 'Modifiez les informations de l\'étudiant' : 'Créez un nouveau compte étudiant'">Subtitle</p>
+                </div>
+            </div>
+            
+            <div class="content-section" style="max-width: 600px;">
+                <form th:action="${user.id != null} ? '/admin/students/' + ${user.id} : '/admin/students'" 
+                      th:object="${user}" method="post">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="fullName">👤 Nom complet *</label>
+                        <input type="text" id="fullName" name="fullName" th:field="*{fullName}" class="form-control"
+                               placeholder="Prénom et nom de l'étudiant" required>
+                    </div>
+                    
+                    <div class="form-group" th:if="${user.id == null}">
+                        <label class="form-label" for="username">🔑 Nom d'utilisateur *</label>
+                        <input type="text" id="username" name="username" th:field="*{username}" class="form-control"
+                               placeholder="Identifiant de connexion" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email">📧 Email *</label>
+                        <input type="email" id="email" name="email" th:field="*{email}" class="form-control"
+                               placeholder="email@exemple.com" required>
+                    </div>
+                    
+                    <div class="form-group" th:if="${user.id == null}">
+                        <label class="form-label" for="password">🔒 Mot de passe *</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="Mot de passe sécurisé" required>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Enregistrer
+                        </button>
+                        <a th:href="@{/admin/students}" class="btn btn-secondary">
+                            ❌ Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

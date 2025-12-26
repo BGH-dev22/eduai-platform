@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats du Quiz - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: default;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quiz-option-indicator {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .quiz-option-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+        
+        .quiz-question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-question-number {
+            font-size: 0.85rem;
+            color: var(--accent-purple);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .quiz-question-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Score Card -->
+            <div class="content-section" 
+                 th:style="${attempt.passed} ? 'background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%); border-color: rgba(34, 197, 94, 0.5);' : 'background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%); border-color: rgba(239, 68, 68, 0.5);'">
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 5rem; font-weight: 800; margin-bottom: 0.5rem;" 
+                         th:style="${attempt.passed} ? 'color: var(--accent-green);' : 'color: var(--accent-red);'"
+                         th:text="${#numbers.formatDecimal(attempt.score, 1, 1)} + '%'">0%</div>
+                    <div style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 1rem;"
+                         th:text="${attempt.correctAnswers} + ' / ' + ${attempt.totalQuestions} + ' réponses correctes'">0/0</div>
+                    <div class="badge" th:classappend="${attempt.passed} ? 'badge-success' : 'badge-danger'" 
+                         style="font-size: 1rem; padding: 0.5rem 1rem;"
+                         th:text="${attempt.passed} ? '✅ Quiz réussi !' : '❌ Continuez vos efforts'">Statut</div>
+                </div>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="stats-grid" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon purple">📚</div>
+                    <div class="stat-content">
+                        <h3 style="font-size: 1rem;" th:text="${course.title}">Cours</h3>
+                        <p>Cours</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">📅</div>
+                    <div class="stat-content">
+                        <h3 style="font-size: 1rem;" th:text="${#temporals.format(attempt.attemptDate, 'dd/MM/yyyy HH:mm')}">Date</h3>
+                        <p>Date de tentative</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink">🎯</div>
+                    <div class="stat-content">
+                        <h3 style="font-size: 1rem;" th:text="${attempt.difficulty}">Difficulté</h3>
+                        <p>Niveau</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Recommendation -->
+            <div class="content-section" style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-color: rgba(102, 126, 234, 0.3);" th:if="${attempt.recommendedAction != null}">
+                <div class="section-header">
+                    <h3 class="section-title" style="color: var(--accent-purple);">
+                        🤖 Recommandation de l'IA
+                    </h3>
+                </div>
+                <p style="color: var(--text-secondary); line-height: 1.8;" th:text="${attempt.recommendedAction}">Recommandation</p>
+            </div>
+            
+            <!-- Agent Decision -->
+            <div class="content-section" style="margin-top: 1.5rem;" th:if="${attempt.agentDecision != null}">
+                <div class="section-header">
+                    <h3 class="section-title">🔍 Décision de l'Agent IA</h3>
+                </div>
+                <pre style="background: var(--bg-card-hover); padding: 1rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; color: var(--text-secondary); font-size: 0.85rem;" 
+                     th:text="${attempt.agentDecision}">Decision</pre>
+            </div>
+            
+            <!-- Detailed Correction -->
+            <div class="content-section" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <h3 class="section-title">📝 Correction détaillée</h3>
+                </div>
+                
+                <div th:each="question, iterStat : ${questions}" 
+                     class="quiz-question-card" 
+                     th:style="${question.correct} ? 'border-color: var(--accent-green); background: rgba(34, 197, 94, 0.05);' : 'border-color: var(--accent-red); background: rgba(239, 68, 68, 0.05);'">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div class="quiz-question-number" th:text="'Question ' + ${iterStat.count}">Question 1</div>
+                        <span th:if="${question.correct}" class="badge badge-success">✅ Correct</span>
+                        <span th:unless="${question.correct}" class="badge badge-danger">❌ Incorrect</span>
+                    </div>
+                    
+                    <div class="quiz-question-text" th:text="${question.questionText}">Question</div>
+                    
+                    <div class="quiz-options">
+                        <div th:each="option, optionStat : ${question.options}" 
+                             class="quiz-option"
+                             th:style="${optionStat.index == question.correctAnswerIndex} ? 'background: rgba(34, 197, 94, 0.15); border-color: var(--accent-green);' : (${optionStat.index == question.studentAnswerIndex && !question.correct} ? 'background: rgba(239, 68, 68, 0.15); border-color: var(--accent-red);' : '')">
+                            <span class="quiz-option-indicator" 
+                                  th:style="${optionStat.index == question.correctAnswerIndex} ? 'border-color: var(--accent-green); background: var(--accent-green);' : (${optionStat.index == question.studentAnswerIndex && !question.correct} ? 'border-color: var(--accent-red); background: var(--accent-red);' : '')">
+                                <span th:if="${optionStat.index == question.correctAnswerIndex}" style="color: white; font-size: 12px;">✓</span>
+                                <span th:if="${optionStat.index == question.studentAnswerIndex && !question.correct}" style="color: white; font-size: 12px;">✗</span>
+                            </span>
+                            <span class="quiz-option-text" th:text="${option}">Option</span>
+                            <span th:if="${optionStat.index == question.correctAnswerIndex}" class="badge badge-success" style="margin-left: auto;">Bonne réponse</span>
+                            <span th:if="${optionStat.index == question.studentAnswerIndex && !question.correct}" class="badge badge-danger" style="margin-left: auto;">Votre réponse</span>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${question.explanation != null}" 
+                         style="margin-top: 1rem; padding: 1rem; background: rgba(249, 115, 22, 0.1); border-left: 4px solid var(--accent-orange); border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--accent-orange);">💡 Explication:</strong>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary);" th:text="${question.explanation}">Explication</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="content-section" style="margin-top: 1.5rem; text-align: center;">
+                <a th:href="@{/student/courses/{id}(id=${course.id})}" class="btn btn-secondary">
+                    📚 Retour au cours
+                </a>
+                <form th:action="@{/student/courses/{id}/generate-quiz(id=${course.id})}" method="post" style="display: inline;">
+                    <input type="hidden" name="difficulty" th:value="${attempt.difficulty}">
+                    <input type="hidden" name="numQuestions" value="10">
+                    <button type="submit" class="btn btn-primary">
+                        🔄 Nouveau Quiz
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

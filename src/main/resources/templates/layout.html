@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'EduAI Platform'}"></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <th:block layout:fragment="extra-css"></th:block>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Admin Navigation -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <div class="nav-section-title">Administration</div>
+                    <a th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/admin/dashboard')} ? 'active' : ''">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a th:href="@{/admin/courses}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/admin/course')} ? 'active' : ''">
+                        <span class="nav-item-icon">📚</span>
+                        <span>Cours</span>
+                    </a>
+                    <a th:href="@{/admin/students}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/admin/student')} ? 'active' : ''">
+                        <span class="nav-item-icon">👥</span>
+                        <span>Étudiants</span>
+                    </a>
+                    <a th:href="@{/admin/evaluations}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/admin/evaluation')} ? 'active' : ''">
+                        <span class="nav-item-icon">📝</span>
+                        <span>Évaluations</span>
+                    </a>
+                </div>
+                
+                <!-- Student Navigation -->
+                <div sec:authorize="hasRole('STUDENT')">
+                    <div class="nav-section-title">Espace Étudiant</div>
+                    <a th:href="@{/student/dashboard}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/student/dashboard')} ? 'active' : ''">
+                        <span class="nav-item-icon">🏠</span>
+                        <span>Mon tableau de bord</span>
+                    </a>
+                    <a th:href="@{/student/courses}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/student/course')} ? 'active' : ''">
+                        <span class="nav-item-icon">📖</span>
+                        <span>Mes cours</span>
+                    </a>
+                    <a th:href="@{/student/evaluations}" class="nav-item" th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/student/evaluation')} ? 'active' : ''">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Mes évaluations</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <div sec:authorize="hasRole('STUDENT')">
+                    <a th:href="@{/student/courses}" class="nav-item">
+                        <span class="nav-item-icon">🤖</span>
+                        <span>Quiz IA</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" sec:authorize="hasRole('ADMIN')">A</div>
+                    <div class="user-avatar" sec:authorize="hasRole('STUDENT')">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name"></div>
+                        <div class="user-role" sec:authorize="hasRole('ADMIN')">Administrateur</div>
+                        <div class="user-role" sec:authorize="hasRole('STUDENT')">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" class="mt-2">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        <span>🚪</span> Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success animate-fade-in">
+                <span>✓</span>
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error animate-fade-in">
+                <span>⚠️</span>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${info}" class="alert alert-info animate-fade-in">
+                <span>ℹ️</span>
+                <span th:text="${info}"></span>
+            </div>
+            
+            <div layout:fragment="content"></div>
+        </main>
+    </div>
+</body>
+</html>

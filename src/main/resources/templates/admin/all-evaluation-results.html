@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tous les Résultats - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .progress-bar-custom {
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .progress-fill-custom {
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-green), #10b981);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        .stats-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 1200px) {
+            .stats-grid-5 { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .stats-grid-5 { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item active">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/admin/evaluations}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux évaluations
+                    </a>
+                    <h1 class="page-title">📊 Tous les Résultats</h1>
+                    <p class="page-subtitle">Vue globale de toutes les évaluations</p>
+                </div>
+            </div>
+            
+            <!-- Info Banner -->
+            <div class="content-section" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: rgba(168, 85, 247, 0.3);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 2rem;">📊</div>
+                    <div>
+                        <h3 style="color: var(--accent-purple); margin-bottom: 0.25rem;">Vue globale de toutes les évaluations</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Consultez ici tous les résultats de tous les étudiants ayant passé les évaluations.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Grid -->
+            <div class="stats-grid-5" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon purple">📝</div>
+                    <div class="stat-content">
+                        <h3 th:text="${#lists.size(evaluations)}">0</h3>
+                        <p>Évaluations</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.totalAttempts}">0</h3>
+                        <p>Tentatives</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.passedAttempts}">0</h3>
+                        <p>Réussis</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink">❌</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.failedAttempts}">0</h3>
+                        <p>Échecs</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">📈</div>
+                    <div class="stat-content">
+                        <h3 th:text="${#numbers.formatDecimal(stats.averageScore, 1, 1)}">0</h3>
+                        <p>Moyenne (%)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pass Rate -->
+            <div class="content-section" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <h3 class="section-title">📈 Taux de réussite global</h3>
+                </div>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill-custom" th:style="'width: ' + ${stats.passRate} + '%'"></div>
+                </div>
+                <p style="text-align: center; margin-top: 0.75rem; color: var(--text-secondary);">
+                    <strong th:text="${#numbers.formatDecimal(stats.passRate, 1, 1)}">0</strong>% des étudiants ont réussi leurs évaluations
+                </p>
+            </div>
+            
+            <!-- All Results Table -->
+            <div class="content-section" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <h3 class="section-title">📋 Tous les résultats</h3>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(allResults)}" class="empty-state">
+                    <div class="empty-state-icon">📝</div>
+                    <h4>Aucun résultat</h4>
+                    <p>Aucun étudiant n'a encore passé d'évaluation.</p>
+                </div>
+                
+                <div class="table-container" th:unless="${#lists.isEmpty(allResults)}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Étudiant</th>
+                                <th>Évaluation</th>
+                                <th>Cours</th>
+                                <th>Score</th>
+                                <th>Statut</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="result : ${allResults}">
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                            <span th:text="${#strings.substring(result.student.fullName, 0, 1)}">E</span>
+                                        </div>
+                                        <span th:text="${result.student.fullName}">Nom</span>
+                                    </div>
+                                </td>
+                                <td th:text="${result.evaluation.title}">Évaluation</td>
+                                <td>
+                                    <span class="badge badge-purple" th:text="${result.evaluation.course.title}">Cours</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${result.passed} ? 'badge-success' : 'badge-danger'"
+                                          th:text="${#numbers.formatDecimal(result.score, 1, 1)} + '%'">0%</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${result.passed} ? 'badge-success' : 'badge-danger'"
+                                          th:text="${result.passed} ? '✓ Réussi' : '✗ Échec'">Statut</span>
+                                </td>
+                                <td style="color: var(--text-muted);" th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

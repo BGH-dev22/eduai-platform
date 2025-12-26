@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.id != null} ? 'Modifier le cours' : 'Nouveau cours'">Formulaire cours - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/admin/courses}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux cours
+                    </a>
+                    <h1 class="page-title" th:text="${course.id != null} ? '✏️ Modifier le cours' : '➕ Nouveau cours'">Formulaire</h1>
+                    <p class="page-subtitle" th:text="${course.id != null} ? 'Modifiez les informations du cours' : 'Créez un nouveau cours pour vos étudiants'">Subtitle</p>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <!-- Formulaire pour MODIFICATION -->
+                <form th:if="${course.id != null}" th:action="@{/admin/courses/{id}(id=${course.id})}" 
+                    th:object="${course}" method="post" enctype="multipart/form-data">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="title">📝 Titre du cours *</label>
+                        <input type="text" id="title" th:field="*{title}" class="form-control" 
+                               placeholder="Entrez le titre du cours" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="description">📋 Description</label>
+                        <input type="text" id="description" th:field="*{description}" class="form-control"
+                               placeholder="Brève description du cours">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="content">📖 Contenu du cours *</label>
+                        <textarea id="content" th:field="*{content}" class="form-control" required 
+                                  style="min-height: 300px;"
+                                  placeholder="Saisissez le contenu pédagogique du cours..."></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="files">📎 Pièces jointes</label>
+                            <input type="file" id="files" name="files" class="form-control" multiple>
+                            <small style="color: var(--text-muted); font-size: 0.8rem;">PDF, TXT et autres documents.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="videoLinks">🎬 Liens Vidéos</label>
+                            <textarea id="videoLinks" th:field="*{videoLinks}" class="form-control"
+                                      style="min-height: 100px;"
+                                      placeholder="Un lien par ligne&#10;https://youtube.com/watch?v=..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Fichiers existants -->
+                    <div th:if="${courseFiles != null && !courseFiles.isEmpty()}" class="form-group">
+                        <label class="form-label">📁 Fichiers existants</label>
+                        <ul class="resource-list" style="background: var(--bg-card-hover); border-radius: 8px; padding: 0.5rem;">
+                            <li th:each="file : ${courseFiles}" class="resource-item">
+                                <div class="resource-icon pdf">📄</div>
+                                <div class="resource-info">
+                                    <a th:href="@{/admin/courses/{cid}/files/{fid}(cid=${course.id}, fid=${file.id})}" 
+                                       class="resource-name" th:text="${file.originalFilename}">Fichier</a>
+                                    <div class="resource-meta" th:text="${file.contentType + ' • ' + (file.size / 1024) + ' Ko'}">Type</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Enregistrer
+                        </button>
+                        <a th:href="@{/admin/courses}" class="btn btn-secondary">
+                            ❌ Annuler
+                        </a>
+                    </div>
+                </form>
+                
+                <!-- Formulaire pour CRÉATION -->
+                <form th:unless="${course.id != null}" th:action="@{/admin/courses}" 
+                    th:object="${course}" method="post" enctype="multipart/form-data">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="title2">📝 Titre du cours *</label>
+                        <input type="text" id="title2" th:field="*{title}" class="form-control" 
+                               placeholder="Entrez le titre du cours" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="description2">📋 Description</label>
+                        <input type="text" id="description2" th:field="*{description}" class="form-control"
+                               placeholder="Brève description du cours">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="content2">📖 Contenu du cours *</label>
+                        <textarea id="content2" th:field="*{content}" class="form-control" required 
+                                  style="min-height: 300px;"
+                                  placeholder="Saisissez le contenu pédagogique du cours..."></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="files2">📎 Pièces jointes</label>
+                            <input type="file" id="files2" name="files" class="form-control" multiple>
+                            <small style="color: var(--text-muted); font-size: 0.8rem;">PDF, TXT et autres documents.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="videoLinks2">🎬 Liens Vidéos</label>
+                            <textarea id="videoLinks2" th:field="*{videoLinks}" class="form-control"
+                                      style="min-height: 100px;"
+                                      placeholder="Un lien par ligne&#10;https://youtube.com/watch?v=..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Créer le cours
+                        </button>
+                        <a th:href="@{/admin/courses}" class="btn btn-secondary">
+                            ❌ Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

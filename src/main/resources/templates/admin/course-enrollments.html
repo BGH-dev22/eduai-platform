@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscriptions au cours - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/admin/courses}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux cours
+                    </a>
+                    <h1 class="page-title">👥 Inscriptions: <span th:text="${course.title}">Cours</span></h1>
+                    <p class="page-subtitle">Gérez les étudiants inscrits à ce cours</p>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Étudiants inscrits -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title" style="color: var(--accent-green);">
+                            ✓ Étudiants inscrits
+                        </h3>
+                        <span class="badge badge-success" th:text="${#lists.size(enrolledStudents)}">0</span>
+                    </div>
+                    
+                    <div th:if="${#lists.isEmpty(enrolledStudents)}" class="empty-state" style="padding: 2rem;">
+                        <p style="color: var(--text-muted);">Aucun étudiant inscrit à ce cours.</p>
+                    </div>
+                    
+                    <ul class="resource-list" th:unless="${#lists.isEmpty(enrolledStudents)}">
+                        <li th:each="student : ${enrolledStudents}" class="resource-item" style="justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.8rem; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+                                    <span th:text="${#strings.substring(student.fullName, 0, 1)}">E</span>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);" th:text="${student.fullName}">Nom</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${student.email}">email</div>
+                                </div>
+                            </div>
+                            <form th:action="@{/admin/courses/{cid}/unenroll/{sid}(cid=${course.id}, sid=${student.id})}" 
+                                  method="post" style="margin: 0;"
+                                  onsubmit="return confirm('Désinscrire cet étudiant ?')">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    ✗ Retirer
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Étudiants disponibles -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title" style="color: var(--accent-blue);">
+                            + Étudiants disponibles
+                        </h3>
+                        <span class="badge badge-info" th:text="${#lists.size(availableStudents)}">0</span>
+                    </div>
+                    
+                    <div th:if="${#lists.isEmpty(availableStudents)}" class="empty-state" style="padding: 2rem;">
+                        <p style="color: var(--text-muted);">Tous les étudiants sont déjà inscrits.</p>
+                    </div>
+                    
+                    <ul class="resource-list" th:unless="${#lists.isEmpty(availableStudents)}">
+                        <li th:each="student : ${availableStudents}" class="resource-item" style="justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.8rem;">
+                                    <span th:text="${#strings.substring(student.fullName, 0, 1)}">E</span>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 500; color: var(--text-primary);" th:text="${student.fullName}">Nom</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${student.email}">email</div>
+                                </div>
+                            </div>
+                            <form th:action="@{/admin/courses/{cid}/enroll/{sid}(cid=${course.id}, sid=${student.id})}" 
+                                  method="post" style="margin: 0;">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    + Inscrire
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <style>
+        @media (max-width: 768px) {
+            div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</body>
+</html>

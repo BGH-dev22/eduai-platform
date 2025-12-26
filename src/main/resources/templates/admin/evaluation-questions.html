@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer les Questions - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .question-card {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .radio-options {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .radio-option input {
+            accent-color: var(--accent-purple);
+        }
+        .correct-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item active">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success">
+                ✅ <span th:text="${success}"></span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <a th:href="@{/admin/evaluations}" class="btn btn-secondary btn-sm mb-2">
+                        ← Retour aux évaluations
+                    </a>
+                    <h1 class="page-title">📝 <span th:text="${evaluation.title}">Évaluation</span></h1>
+                    <p class="page-subtitle">Gérez les questions de cette évaluation</p>
+                </div>
+            </div>
+            
+            <!-- Info Banner -->
+            <div class="content-section" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: rgba(168, 85, 247, 0.3);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 2rem;">📋</div>
+                    <div>
+                        <h3 style="color: var(--accent-purple); margin-bottom: 0.25rem;">Gestion des questions</h3>
+                        <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 0.5rem; color: var(--text-secondary);">
+                            <span><strong>Cours:</strong> <span th:text="${evaluation.course.title}"></span></span>
+                            <span><strong>Seuil:</strong> <span th:text="${evaluation.passingScore}"></span>%</span>
+                            <span><strong>Questions:</strong> <span th:text="${#lists.size(evaluation.questions)}"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Question Form -->
+            <div class="content-section" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <h3 class="section-title">➕ Ajouter une nouvelle question</h3>
+                </div>
+                
+                <form th:action="@{/admin/evaluations/{id}/questions(id=${evaluation.id})}" method="post">
+                    <div class="form-group">
+                        <label for="questionText" class="form-label">❓ Question *</label>
+                        <textarea id="questionText" name="questionText" class="form-control" required rows="3"
+                                  placeholder="Entrez votre question ici..."></textarea>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="form-group">
+                            <label for="option1" class="form-label">Option A *</label>
+                            <input type="text" id="option1" name="option1" class="form-control" required
+                                   placeholder="Première option">
+                        </div>
+                        <div class="form-group">
+                            <label for="option2" class="form-label">Option B *</label>
+                            <input type="text" id="option2" name="option2" class="form-control" required
+                                   placeholder="Deuxième option">
+                        </div>
+                        <div class="form-group">
+                            <label for="option3" class="form-label">Option C *</label>
+                            <input type="text" id="option3" name="option3" class="form-control" required
+                                   placeholder="Troisième option">
+                        </div>
+                        <div class="form-group">
+                            <label for="option4" class="form-label">Option D *</label>
+                            <input type="text" id="option4" name="option4" class="form-control" required
+                                   placeholder="Quatrième option">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">✓ Réponse correcte *</label>
+                        <div class="radio-options">
+                            <label class="radio-option">
+                                <input type="radio" name="correctAnswer" value="0" required>
+                                <span>Option A</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="correctAnswer" value="1">
+                                <span>Option B</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="correctAnswer" value="2">
+                                <span>Option C</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="correctAnswer" value="3">
+                                <span>Option D</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="explanation" class="form-label">💡 Explication (optionnel)</label>
+                            <textarea id="explanation" name="explanation" class="form-control" rows="2"
+                                      placeholder="Expliquez pourquoi cette réponse est correcte..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="points" class="form-label">⭐ Points</label>
+                            <input type="number" id="points" name="points" class="form-control" 
+                                   value="1" min="1" max="10" style="width: 80px;">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        ✅ Ajouter la question
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Existing Questions -->
+            <div class="content-section" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <h3 class="section-title">📋 Questions existantes</h3>
+                    <span class="badge badge-primary" th:text="${#lists.size(evaluation.questions)}">0</span>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(evaluation.questions)}" class="empty-state">
+                    <div class="empty-state-icon">📝</div>
+                    <h4>Aucune question</h4>
+                    <p>Utilisez le formulaire ci-dessus pour ajouter des questions à cette évaluation.</p>
+                </div>
+                
+                <div th:each="question, iter : ${evaluation.questions}" class="question-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <span class="badge badge-purple">Question <span th:text="${iter.index + 1}"></span></span>
+                        <a th:href="@{/admin/evaluations/{eid}/questions/{qid}/delete(eid=${evaluation.id}, qid=${question.id})}" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Supprimer cette question ?')">🗑️</a>
+                    </div>
+                    
+                    <p style="color: var(--text-primary); margin-bottom: 1rem; font-weight: 500;" th:text="${question.questionText}">Question</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                        <div th:each="option, optStat : ${question.options}" 
+                             style="padding: 0.5rem 1rem; background: var(--bg-tertiary); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+                            <span th:text="${optStat.index == 0 ? 'A' : (optStat.index == 1 ? 'B' : (optStat.index == 2 ? 'C' : 'D'))}">A</span>
+                            <span th:text="${option}">Option</span>
+                            <span th:if="${optStat.index == question.correctAnswer}" class="correct-badge" style="margin-left: auto;">✓ Correcte</span>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${question.explanation != null}" style="margin-top: 1rem; padding: 0.75rem; background: rgba(249, 115, 22, 0.1); border-left: 3px solid var(--accent-orange); border-radius: 0 6px 6px 0;">
+                        <small style="color: var(--accent-orange);">💡 Explication:</small>
+                        <p style="margin: 0.25rem 0 0; color: var(--text-secondary); font-size: 0.9rem;" th:text="${question.explanation}">Explication</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

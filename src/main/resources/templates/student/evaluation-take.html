@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Évaluation en cours - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .evaluation-info-banner {
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .evaluation-info-content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .evaluation-meta {
+            display: flex;
+            gap: 2rem;
+        }
+        .meta-item {
+            text-align: center;
+        }
+        .meta-icon { font-size: 1.5rem; display: block; }
+        .meta-value { font-size: 1.5rem; font-weight: 700; display: block; }
+        .meta-label { font-size: 0.8rem; opacity: 0.8; }
+        
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .question-number {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+        .question-points {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        .option-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-purple);
+        }
+        .option-item:has(input:checked) {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent-purple);
+        }
+        .option-item input[type="radio"] { display: none; }
+        .option-marker {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .option-item:has(input:checked) .option-marker {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple);
+            color: white;
+        }
+        .option-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+        .option-item:has(input:checked) .option-text {
+            color: var(--text-primary);
+        }
+        .submit-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+        }
+        .submit-warning {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--accent-orange);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item active">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📝 Évaluation en cours</h1>
+                    <p class="page-subtitle" th:text="${evaluation.title}">Titre de l'évaluation</p>
+                </div>
+            </div>
+            
+            <!-- Evaluation Info Banner -->
+            <div class="evaluation-info-banner">
+                <div class="evaluation-info-content">
+                    <h2 th:text="${evaluation.title}">Évaluation</h2>
+                    <p th:text="${evaluation.description}">Description</p>
+                </div>
+                <div class="evaluation-meta">
+                    <div class="meta-item">
+                        <span class="meta-icon">📝</span>
+                        <span class="meta-value" th:text="${#lists.size(questions)}">0</span>
+                        <span class="meta-label">questions</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">⏱️</span>
+                        <span class="meta-value" th:text="${evaluation.duration}">30</span>
+                        <span class="meta-label">minutes</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">🎯</span>
+                        <span class="meta-value" th:text="${evaluation.passingScore}">70</span>
+                        <span class="meta-label">% requis</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions Form -->
+            <form th:action="@{/student/evaluations/{id}/submit(id=${attempt.id})}" method="post">
+                
+                <div th:each="question, iter : ${questions}" class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">
+                            Question <span th:text="${iter.index + 1}"></span> / <span th:text="${#lists.size(questions)}"></span>
+                        </span>
+                        <span class="question-points" th:text="${question.points} + ' point(s)'"></span>
+                    </div>
+                    
+                    <p class="question-text" th:text="${question.questionText}"></p>
+                    
+                    <div class="options-list">
+                        <label th:each="option, optIter : ${question.options}" class="option-item">
+                            <input type="radio" 
+                                   th:name="'question_' + ${question.id}" 
+                                   th:value="${optIter.index}" 
+                                   required>
+                            <span class="option-marker" th:text="${optIter.index == 0 ? 'A' : (optIter.index == 1 ? 'B' : (optIter.index == 2 ? 'C' : 'D'))}"></span>
+                            <span class="option-text" th:text="${option}"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <div class="submit-warning">
+                        <span>⚠️</span>
+                        <p style="margin: 0;">Vérifiez vos réponses avant de soumettre. Vous ne pourrez pas modifier vos réponses après soumission.</p>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg"
+                            onclick="return confirm('Êtes-vous sûr de vouloir soumettre votre évaluation ?')">
+                        ✅ Soumettre mon évaluation
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

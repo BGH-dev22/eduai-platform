@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz - <span th:text="${course.title}"></span></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; 
+                 display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                  margin-bottom: 20px; }
+        .quiz-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; 
+                      padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+        .quiz-header h1 { margin-bottom: 10px; }
+        .question-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; margin-bottom: 25px; 
+                        background: #fafafa; }
+        .question-card h3 { color: #333; margin-bottom: 20px; font-size: 18px; }
+        .option { display: block; padding: 15px; margin-bottom: 10px; border: 2px solid #ddd; 
+                 border-radius: 8px; cursor: pointer; transition: all 0.3s; background: white; }
+        .option:hover { border-color: #667eea; background: #f0f4ff; }
+        .option input[type="radio"] { margin-right: 10px; }
+        .option label { cursor: pointer; width: 100%; }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; 
+              font-weight: 600; transition: all 0.3s; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; padding: 15px; 
+                     border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/student/dashboard" class="navbar-brand">🎓 Quiz IA</a>
+    </div>
+    
+    <div class="container">
+        <div class="quiz-header">
+            <h1>Quiz: <span th:text="${course.title}"></span></h1>
+            <p>Niveau: <strong th:text="${attempt.difficulty}"></strong></p>
+            <p>Nombre de questions: <strong th:text="${#lists.size(questions)}"></strong></p>
+        </div>
+        
+        <div class="alert-info">
+            🤖 <strong>Quiz généré par IA agentique</strong><br>
+            Ce quiz a été personnalisé selon votre niveau et votre historique de progression.
+        </div>
+        
+        <form th:action="@{/student/quiz/{id}/submit(id=${attempt.id})}" method="post">
+            <div th:each="question, iterStat : ${questions}" class="question-card">
+                <h3>
+                    <span th:text="${iterStat.count}"></span>. 
+                    <span th:text="${question.questionText}"></span>
+                </h3>
+                
+                <div th:each="option, optionStat : ${question.options}" class="option">
+                    <input type="radio" 
+                           th:id="'q' + ${question.id} + '_opt' + ${optionStat.index}"
+                           th:name="'question_' + ${question.id}" 
+                           th:value="${optionStat.index}" 
+                           required>
+                    <label th:for="'q' + ${question.id} + '_opt' + ${optionStat.index}" 
+                           th:text="${option}"></label>
+                </div>
+            </div>
+            
+            <div class="content" style="text-align: center;">
+                <button type="submit" class="btn btn-success">✅ Soumettre le Quiz</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

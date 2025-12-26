@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats de l'évaluation - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .result-banner {
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .result-passed {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+        .result-failed {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+        .result-icon { font-size: 4rem; }
+        .result-content { flex: 1; }
+        .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+        .result-passed .result-score { color: var(--accent-green); }
+        .result-failed .result-score { color: var(--accent-red); }
+        .result-status { font-size: 1.25rem; font-weight: 600; }
+        .result-stats { display: flex; gap: 2rem; }
+        .result-stat { text-align: center; }
+        .result-stat .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+        .result-stat .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .answer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .answer-correct { border-left: 4px solid var(--accent-green); }
+        .answer-incorrect { border-left: 4px solid var(--accent-red); }
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .answer-number { color: var(--accent-purple); font-weight: 600; }
+        .status-correct { color: var(--accent-green); }
+        .status-incorrect { color: var(--accent-red); }
+        .answer-question {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        .answer-options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .answer-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+        .option-correct { background: rgba(34, 197, 94, 0.1); border: 1px solid var(--accent-green); }
+        .option-wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); }
+        .option-letter {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .option-badge {
+            margin-left: auto;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .correct-badge { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+        .wrong-badge { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .answer-explanation {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(249, 115, 22, 0.1);
+            border-left: 3px solid var(--accent-orange);
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item active">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📊 Résultats de l'évaluation</h1>
+                    <p class="page-subtitle" th:text="${evaluation.title}">Évaluation</p>
+                </div>
+            </div>
+            
+            <!-- Result Banner -->
+            <div class="result-banner" th:classappend="${attempt.passed ? 'result-passed' : 'result-failed'}">
+                <div class="result-icon">
+                    <span th:text="${attempt.passed ? '🎉' : '😔'}">🎉</span>
+                </div>
+                <div class="result-content">
+                    <div class="result-score" th:text="${#numbers.formatDecimal(attempt.score, 1, 1)} + '%'">0%</div>
+                    <div class="result-status" th:text="${attempt.passed ? 'RÉUSSI !' : 'ÉCHEC'}">Statut</div>
+                </div>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="stat-value" th:text="${attempt.correctAnswers}">0</span>
+                        <span class="stat-label">Bonnes réponses</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-value" th:text="${attempt.totalQuestions}">0</span>
+                        <span class="stat-label">Questions</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-value" th:text="${evaluation.passingScore} + '%'">70%</span>
+                        <span class="stat-label">Seuil requis</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Answers Detail -->
+            <div class="section-header" style="margin-bottom: 1rem;">
+                <h2 style="color: var(--text-primary);">📋 Détail des réponses</h2>
+            </div>
+            
+            <div th:each="answer, iter : ${answers}" class="answer-card" 
+                 th:classappend="${answer.correct ? 'answer-correct' : 'answer-incorrect'}">
+                <div class="answer-header">
+                    <span class="answer-number">Question <span th:text="${iter.index + 1}"></span></span>
+                    <span th:classappend="${answer.correct ? 'status-correct' : 'status-incorrect'}">
+                        <span th:text="${answer.correct ? '✓ Correct' : '✗ Incorrect'}"></span>
+                    </span>
+                </div>
+                
+                <p class="answer-question" th:text="${answer.question.questionText}"></p>
+                
+                <div class="answer-options">
+                    <div th:each="option, optIter : ${answer.question.options}" class="answer-option"
+                         th:classappend="${optIter.index == answer.question.correctAnswerIndex ? 'option-correct' : ''} + 
+                                        ${optIter.index == answer.selectedAnswerIndex and !answer.correct ? ' option-wrong' : ''}">
+                        <span class="option-letter" th:text="${optIter.index == 0 ? 'A' : (optIter.index == 1 ? 'B' : (optIter.index == 2 ? 'C' : 'D'))}"></span>
+                        <span class="option-text" th:text="${option}"></span>
+                        <span th:if="${optIter.index == answer.question.correctAnswerIndex}" class="option-badge correct-badge">
+                            ✓ Réponse correcte
+                        </span>
+                        <span th:if="${optIter.index == answer.selectedAnswerIndex and !answer.correct}" class="option-badge wrong-badge">
+                            ✗ Votre réponse
+                        </span>
+                    </div>
+                </div>
+                
+                <div th:if="${answer.question.explanation}" class="answer-explanation">
+                    <span>💡</span>
+                    <div>
+                        <strong>Explication:</strong>
+                        <span th:text="${answer.question.explanation}"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a th:href="@{/student/courses/{id}/evaluations(id=${evaluation.course.id})}" class="btn btn-secondary">
+                    ← Retour aux évaluations
+                </a>
+                <a th:href="@{/student/courses/{id}(id=${evaluation.course.id})}" class="btn btn-primary">
+                    📚 Retour au cours
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

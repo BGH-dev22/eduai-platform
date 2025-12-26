@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${course.id != null ? 'Modifier le cours' : 'Nouveau cours'}"></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; 
+                 display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        .content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: 500; }
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; font-family: inherit; }
+        textarea { min-height: 200px; resize: vertical; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; 
+              text-decoration: none; display: inline-block; margin-right: 10px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🎓 Admin</a>
+    </div>
+    
+    <div class="container">
+        <div class="content">
+            <h1 th:text="${course.id != null ? 'Modifier le cours' : 'Nouveau cours'}" style="margin-bottom: 30px; color: #333;"></h1>
+            
+            <form th:action="${course.id != null ? '/admin/courses/' + course.id : '/admin/courses'}" 
+                  th:object="${course}" method="post">
+                
+                <div class="form-group">
+                    <label for="title">Titre du cours *</label>
+                    <input type="text" id="title" name="title" th:field="*{title}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" th:field="*{description}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Contenu du cours *</label>
+                    <textarea id="content" name="content" th:field="*{content}" required 
+                              placeholder="Saisissez le contenu pédagogique du cours..."></textarea>
+                </div>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                    <a href="/admin/courses" class="btn btn-secondary">❌ Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

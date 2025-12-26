@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats du Quiz</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; 
+                 display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                  margin-bottom: 20px; }
+        .score-card { text-align: center; padding: 40px; border-radius: 10px; margin-bottom: 30px; }
+        .score-card.passed { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .score-card.failed { background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); color: white; }
+        .score-card h1 { font-size: 64px; margin-bottom: 10px; }
+        .score-card p { font-size: 20px; }
+        .ai-recommendation { background: #f0f8ff; border-left: 4px solid #667eea; padding: 20px; 
+                           border-radius: 5px; margin-bottom: 30px; }
+        .ai-recommendation h3 { color: #667eea; margin-bottom: 10px; }
+        .question-result { border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .question-result.correct { border-color: #28a745; background: #f0fff4; }
+        .question-result.incorrect { border-color: #dc3545; background: #fff5f5; }
+        .question-result h4 { margin-bottom: 15px; color: #333; }
+        .option { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .option.correct { background: #d4edda; border: 2px solid #28a745; }
+        .option.incorrect { background: #f8d7da; border: 2px solid #dc3545; }
+        .option.neutral { background: #f8f9fa; }
+        .explanation { background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 10px; 
+                      border-left: 4px solid #ffc107; }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; 
+              display: inline-block; font-size: 16px; font-weight: 600; margin-right: 10px; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/student/dashboard" class="navbar-brand">🎓 Résultats</a>
+    </div>
+    
+    <div class="container">
+        <div class="score-card" th:classappend="${attempt.passed ? 'passed' : 'failed'}">
+            <h1 th:text="${#numbers.formatDecimal(attempt.score, 1, 1)} + '%'"></h1>
+            <p th:text="${attempt.correctAnswers} + ' / ' + ${attempt.totalQuestions} + ' réponses correctes'"></p>
+            <p style="margin-top: 15px; font-size: 24px;" th:text="${attempt.passed ? '✅ Quiz réussi !' : '❌ Continuez vos efforts'}"></p>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #333; margin-bottom: 20px;">📊 Détails de la tentative</h2>
+            <p><strong>Cours:</strong> <span th:text="${course.title}"></span></p>
+            <p><strong>Date:</strong> <span th:text="${#temporals.format(attempt.attemptDate, 'dd/MM/yyyy à HH:mm')}"></span></p>
+            <p><strong>Niveau de difficulté:</strong> <span th:text="${attempt.difficulty}"></span></p>
+        </div>
+        
+        <div class="ai-recommendation" th:if="${attempt.recommendedAction != null}">
+            <h3>🤖 Recommandation de l'IA Agentique</h3>
+            <p th:text="${attempt.recommendedAction}" style="line-height: 1.6;"></p>
+        </div>
+        
+        <div class="content" th:if="${attempt.agentDecision != null}">
+            <h3 style="color: #667eea; margin-bottom: 15px;">🔍 Décision de l'Agent IA</h3>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap;" 
+                 th:text="${attempt.agentDecision}"></pre>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #333; margin-bottom: 20px;">📝 Correction détaillée</h2>
+            
+            <div th:each="question, iterStat : ${questions}" 
+                 class="question-result" 
+                 th:classappend="${question.correct ? 'correct' : 'incorrect'}">
+                
+                <h4>
+                    Question <span th:text="${iterStat.count}"></span> 
+                    <span th:if="${question.correct}" style="color: #28a745;">✅</span>
+                    <span th:unless="${question.correct}" style="color: #dc3545;">❌</span>
+                </h4>
+                <p style="margin-bottom: 15px; font-weight: 500;" th:text="${question.questionText}"></p>
+                
+                <div th:each="option, optionStat : ${question.options}">
+                    <div class="option" 
+                         th:classappend="${optionStat.index == question.correctAnswerIndex ? 'correct' : 
+                                         (optionStat.index == question.studentAnswerIndex && !question.correct ? 'incorrect' : 'neutral')}">
+                        <span th:if="${optionStat.index == question.correctAnswerIndex}">✅ </span>
+                        <span th:if="${optionStat.index == question.studentAnswerIndex && !question.correct}">❌ </span>
+                        <span th:text="${option}"></span>
+                        <span th:if="${optionStat.index == question.correctAnswerIndex}"> (Bonne réponse)</span>
+                        <span th:if="${optionStat.index == question.studentAnswerIndex && !question.correct}"> (Votre réponse)</span>
+                    </div>
+                </div>
+                
+                <div class="explanation" th:if="${question.explanation != null}">
+                    <strong>💡 Explication:</strong>
+                    <p th:text="${question.explanation}" style="margin-top: 5px;"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content" style="text-align: center;">
+            <a th:href="@{/student/courses/{id}(id=${course.id})}" class="btn btn-primary">📚 Retour au cours</a>
+            <form th:action="@{/student/courses/{id}/generate-quiz(id=${course.id})}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-success">🔄 Nouveau Quiz</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

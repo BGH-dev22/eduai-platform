@@ -1,0 +1,58 @@
+# Application Configuration
+spring.application.name=Educational Platform with AI
+
+# Server Configuration
+server.port=8080
+
+# H2 Database Configuration
+spring.datasource.url=jdbc:h2:mem:educational_platform
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# JPA Configuration
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# H2 Console Configuration
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# Thymeleaf Configuration
+spring.thymeleaf.cache=false
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+
+# Logging Configuration
+logging.level.org.springframework.security=DEBUG
+logging.level.com.plateforme=DEBUG
+logging.level.org.thymeleaf=DEBUG
+logging.level.org.springframework.web=DEBUG
+
+# =====================================================
+# OpenAI Configuration
+# =====================================================
+# IMPORTANT: Copy this file to application.properties
+# and replace YOUR_API_KEY_HERE with your actual API key
+# NEVER commit your real API keys to Git!
+# =====================================================
+spring.ai.openai.api-key=YOUR_OPENAI_API_KEY_HERE
+spring.ai.openai.chat.options.model=gpt-3.5-turbo
+spring.ai.openai.chat.options.temperature=0.7
+
+# Alternative: Ollama for local LLM (recommended for development)
+spring.ai.ollama.base-url=http://localhost:11434
+spring.ai.ollama.chat.options.model=tinyllama:latest
+
+# Désactiver l'auto-configuration OpenAI (mode simulé pour développement)
+spring.autoconfigure.exclude=org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration
+
+# File Upload Configuration
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+spring.servlet.multipart.enabled=true
+
+# Répertoire racine pour les pièces jointes des cours
+file.upload-dir=uploads

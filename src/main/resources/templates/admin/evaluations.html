@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Évaluations - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item active">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Info Banner -->
+            <div class="content-section" 
+                 style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.2) 100%); border-color: rgba(249, 115, 22, 0.3);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 2.5rem;">📝</div>
+                    <div>
+                        <h3 style="color: var(--accent-orange); margin-bottom: 0.25rem;">Panel Professeur - Évaluations</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Créez des évaluations personnalisées. Seuil de réussite: <strong style="color: var(--accent-green);">70%</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page-header" style="margin-top: 1.5rem;">
+                <div>
+                    <h1 class="page-title">📋 Gestion des évaluations</h1>
+                    <p class="page-subtitle">Créez et gérez les évaluations de vos cours</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a th:href="@{/admin/evaluations/all-results}" class="btn btn-secondary">
+                        📊 Tous les résultats
+                    </a>
+                    <a th:href="@{/admin/evaluations/new}" class="btn btn-primary">
+                        ➕ Nouvelle évaluation
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Évaluation</th>
+                                <th>Cours</th>
+                                <th>Questions</th>
+                                <th>Seuil</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="eval : ${evaluations}">
+                                <td>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--text-primary);" th:text="${eval.title}">Titre</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);" 
+                                             th:text="${eval.description != null} ? ${#strings.abbreviate(eval.description, 40)} : 'Aucune description'">Description</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-purple" th:text="${eval.course.title}">Cours</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info" th:text="${#lists.size(eval.questions)} + ' Q'">0 Q</span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background: rgba(249, 115, 22, 0.2); color: var(--accent-orange);" 
+                                          th:text="${eval.passingScore} + '%'">70%</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${eval.active} ? 'badge-success' : 'badge-warning'" 
+                                          th:text="${eval.active} ? '✓ Active' : '○ Inactive'">Statut</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/admin/evaluations/{id}/questions(id=${eval.id})}" class="btn btn-primary btn-sm">
+                                            📝 Questions
+                                        </a>
+                                        <a th:href="@{/admin/evaluations/{id}/results(id=${eval.id})}" class="btn btn-secondary btn-sm">
+                                            📊 Résultats
+                                        </a>
+                                        <a th:href="@{/admin/evaluations/{id}/edit(id=${eval.id})}" class="btn btn-secondary btn-sm">
+                                            ✏️
+                                        </a>
+                                        <a th:href="@{/admin/evaluations/{id}/toggle(id=${eval.id})}" class="btn btn-secondary btn-sm"
+                                           th:text="${eval.active} ? '🔒' : '🔓'">Toggle</a>
+                                        <a th:href="@{/admin/evaluations/{id}/delete(id=${eval.id})}" 
+                                           class="btn btn-danger btn-sm" 
+                                           onclick="return confirm('Supprimer cette évaluation ?')">🗑️</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(evaluations)}" class="empty-state">
+                    <div class="empty-state-icon">📝</div>
+                    <h4>Aucune évaluation</h4>
+                    <p>Créez votre première évaluation pour commencer.</p>
+                    <a th:href="@{/admin/evaluations/new}" class="btn btn-primary">➕ Nouvelle évaluation</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

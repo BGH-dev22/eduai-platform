@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item active">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success">
+                <span>✓</span> <span th:text="${success}"></span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📊 Tableau de bord</h1>
+                    <p class="page-subtitle">Vue d'ensemble de la plateforme</p>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon purple">📚</div>
+                    <div class="stat-content">
+                        <h3 th:text="${totalCourses}">0</h3>
+                        <p>Cours total</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-content">
+                        <h3 th:text="${totalStudents}">0</h3>
+                        <p>Étudiants inscrits</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <div class="stat-content">
+                        <h3 th:text="${publishedCourses}">0</h3>
+                        <p>Cours publiés</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon orange">🤖</div>
+                    <div class="stat-content">
+                        <h3 th:text="${indexedCourses}">0</h3>
+                        <p>Cours indexés (RAG)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions rapides -->
+            <h2 class="section-title">🚀 Actions rapides</h2>
+            
+            <div class="actions-grid">
+                <div class="action-card purple">
+                    <div class="action-card-icon">📚</div>
+                    <div class="action-card-content">
+                        <h3>Gérer les cours</h3>
+                        <p>Créer, modifier, publier et indexer les cours pour les étudiants.</p>
+                        <span class="action-card-count" th:text="${totalCourses} + ' cours'">0 cours</span>
+                        <a th:href="@{/admin/courses}" class="btn btn-primary">Accéder</a>
+                    </div>
+                </div>
+                
+                <div class="action-card green">
+                    <div class="action-card-icon">👥</div>
+                    <div class="action-card-content">
+                        <h3>Gérer les étudiants</h3>
+                        <p>Ajouter des étudiants et gérer leurs inscriptions aux cours.</p>
+                        <span class="action-card-count" th:text="${totalStudents} + ' étudiants'">0 étudiants</span>
+                        <a th:href="@{/admin/students}" class="btn btn-primary">Accéder</a>
+                    </div>
+                </div>
+                
+                <div class="action-card blue">
+                    <div class="action-card-icon">📝</div>
+                    <div class="action-card-content">
+                        <h3>Évaluations</h3>
+                        <p>Créer des évaluations et suivre les résultats des étudiants.</p>
+                        <a th:href="@{/admin/evaluations}" class="btn btn-primary">Accéder</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Features -->
+            <h2 class="section-title">🤖 Fonctionnalités IA</h2>
+            
+            <div class="ai-features-grid">
+                <div class="ai-feature-card">
+                    <div class="ai-feature-icon">🧠</div>
+                    <div class="ai-feature-content">
+                        <h3>Indexation RAG</h3>
+                        <p>Indexez le contenu des cours pour permettre aux étudiants de générer des quiz intelligents basés sur le contenu réel.</p>
+                        <div class="ai-feature-stats">
+                            <span class="stat-item">
+                                <span class="stat-value" th:text="${indexedCourses}">0</span>
+                                <span class="stat-label">indexés</span>
+                            </span>
+                            <span class="stat-item">
+                                <span class="stat-value" th:text="${totalCourses - indexedCourses}">0</span>
+                                <span class="stat-label">à indexer</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-feature-card">
+                    <div class="ai-feature-icon">✨</div>
+                    <div class="ai-feature-content">
+                        <h3>Génération de Quiz</h3>
+                        <p>L'IA génère automatiquement des questions pertinentes basées sur le contenu des cours indexés.</p>
+                        <div class="ai-feature-badge">Powered by Azure OpenAI</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Quiz - ' + ${course.title}">Quiz - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        
+        .quiz-option:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-purple);
+        }
+        
+        .quiz-option:has(input:checked) {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent-purple);
+        }
+        
+        .quiz-option input[type="radio"] {
+            display: none;
+        }
+        
+        .quiz-option-indicator {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+            flex-shrink: 0;
+        }
+        
+        .quiz-option:has(input:checked) .quiz-option-indicator {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple);
+        }
+        
+        .quiz-option:has(input:checked) .quiz-option-indicator::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+        
+        .quiz-option-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+        
+        .quiz-option:has(input:checked) .quiz-option-text {
+            color: var(--text-primary);
+        }
+        
+        .quiz-question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quiz-question-number {
+            font-size: 0.85rem;
+            color: var(--accent-purple);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .quiz-question-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Espace Étudiant</div>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Mon tableau de bord</span>
+                </a>
+                <a th:href="@{/student/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📖</span>
+                    <span>Mes cours</span>
+                </a>
+                <a th:href="@{/student/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Mes évaluations</span>
+                </a>
+                
+                <div class="nav-section-title">IA & Apprentissage</div>
+                <a th:href="@{/student/courses}" class="nav-item">
+                    <span class="nav-item-icon">🤖</span>
+                    <span>Quiz IA</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">E</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Étudiant</div>
+                        <div class="user-role">Étudiant</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Quiz Header -->
+            <div class="content-section" 
+                 style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%); border: none;">
+                <div style="text-align: center;">
+                    <h1 class="page-title" style="margin-bottom: 0.5rem;">
+                        🤖 Quiz: <span th:text="${course.title}">Cours</span>
+                    </h1>
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Niveau</div>
+                            <div class="badge badge-purple" th:text="${attempt.difficulty}">Difficulté</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Questions</div>
+                            <div class="badge badge-info" th:text="${#lists.size(questions)}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                🤖 <strong>Quiz généré par IA agentique</strong> - Personnalisé selon votre niveau et votre progression.
+            </div>
+            
+            <form th:action="@{/student/quiz/{id}/submit(id=${attempt.id})}" method="post">
+                <div th:each="question, iterStat : ${questions}" class="quiz-question-card">
+                    <div class="quiz-question-number">Question <span th:text="${iterStat.count}">1</span> / <span th:text="${#lists.size(questions)}">10</span></div>
+                    <div class="quiz-question-text" th:text="${question.questionText}">Question text</div>
+                    
+                    <div class="quiz-options">
+                        <label th:each="option, optionStat : ${question.options}" class="quiz-option">
+                            <input type="radio" 
+                                   th:name="'question_' + ${question.id}" 
+                                   th:value="${optionStat.index}" 
+                                   required>
+                            <span class="quiz-option-indicator"></span>
+                            <span class="quiz-option-text" th:text="${option}">Option</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="content-section" style="text-align: center;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        Assurez-vous d'avoir répondu à toutes les questions avant de soumettre.
+                    </p>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        ✅ Soumettre le Quiz
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Cours - EduAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">🎓</div>
+                <span class="sidebar-brand-text">EduAI</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Administration</div>
+                <a th:href="@{/admin/dashboard}" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/admin/courses}" class="nav-item active">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Cours</span>
+                </a>
+                <a th:href="@{/admin/students}" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Étudiants</span>
+                </a>
+                <a th:href="@{/admin/evaluations}" class="nav-item">
+                    <span class="nav-item-icon">📝</span>
+                    <span>Évaluations</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" sec:authentication="name">Admin</div>
+                        <div class="user-role">Administrateur</div>
+                    </div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🚪 Se déconnecter
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:if="${success}" class="alert alert-success">
+                <span>✓</span> <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger">
+                <span>⚠️</span> <span th:text="${error}"></span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📚 Gestion des cours</h1>
+                    <p class="page-subtitle">Créer, modifier et gérer vos cours</p>
+                </div>
+                <a th:href="@{/admin/courses/new}" class="btn btn-primary">
+                    ➕ Nouveau cours
+                </a>
+            </div>
+            
+            <div class="content-section">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Statut</th>
+                                <th>Indexation</th>
+                                <th>Inscrits</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="course : ${courses}">
+                                <td>
+                                    <div class="course-title-cell">
+                                        <span class="course-icon">📖</span>
+                                        <div>
+                                            <strong th:text="${course.title}">Titre</strong>
+                                            <p class="text-muted" th:text="${#strings.abbreviate(course.description, 50)}">Description</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${course.published} ? 'badge-success' : 'badge-warning'"
+                                          th:text="${course.published} ? 'Publié' : 'Brouillon'">Statut</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${course.indexed} ? 'badge-info' : 'badge-secondary'"
+                                          th:text="${course.indexed} ? '✓ Indexé' : 'Non indexé'">Indexation</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-primary" th:text="${#lists.size(course.enrolledStudents)} + ' étudiant(s)'">0</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-secondary btn-sm">
+                                            ✏️ Modifier
+                                        </a>
+                                        <a th:href="@{/admin/courses/{id}/enrollments(id=${course.id})}" class="btn btn-info btn-sm">
+                                            👥 Inscrire
+                                        </a>
+                                        <a th:if="${!course.published}" th:href="@{/admin/courses/{id}/publish(id=${course.id})}" class="btn btn-success btn-sm">
+                                            ✓ Publier
+                                        </a>
+                                        <a th:if="${course.published and !course.indexed}" th:href="@{/admin/courses/{id}/index(id=${course.id})}" class="btn btn-warning btn-sm">
+                                            🤖 Indexer
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(courses)}" class="empty-state">
+                    <div class="empty-state-icon">📚</div>
+                    <h4>Aucun cours</h4>
+                    <p>Créez votre premier cours pour commencer.</p>
+                    <a th:href="@{/admin/courses/new}" class="btn btn-primary">➕ Créer un cours</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
