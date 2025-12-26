@@ -167,9 +167,9 @@
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.8rem;">
-                                            <span th:text="${#strings.substring(result.student.fullName, 0, 1)}">E</span>
+                                            <span th:text="${#strings.substring(result.studentName, 0, 1)}">E</span>
                                         </div>
-                                        <span th:text="${result.student.fullName}">Nom</span>
+                                        <span th:text="${result.studentName}">Nom</span>
                                     </div>
                                 </td>
                                 <td>
@@ -181,7 +181,7 @@
                                     <span class="badge" th:classappend="${result.passed} ? 'badge-success' : 'badge-danger'"
                                           th:text="${result.passed} ? '✓ Réussi' : '✗ Échec'">Statut</span>
                                 </td>
-                                <td style="color: var(--text-muted);" th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+                                <td style="color: var(--text-muted);" th:text="${result.completedAt != null} ? ${#temporals.format(result.completedAt, 'dd/MM/yyyy HH:mm')} : '-'">Date</td>
                             </tr>
                         </tbody>
                     </table>
