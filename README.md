@@ -364,7 +364,7 @@ Les contributions sont les bienvenues !
 
 
 
-[![GitHub](https://img.shields.io/badge/GitHub-@BGH-dev22-181717?style=flat-square&logo=github)](https://github.com/BGH-dev22)
+[![GitHub](https://img.shields.io/badge/GitHub-@username-181717?style=flat-square&logo=github)](https://github.com/BGH-dev22)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profil-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/houda-boughnam-45b622335/)
 
 
