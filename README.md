@@ -364,17 +364,9 @@ Les contributions sont les bienvenues !
 
 
 
-[![GitHub](https://img.shields.io/badge/GitHub-@votreusername-181717?style=flat-square&logo=github)](https://github.com/votreusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profil-0077B5?style=flat-square&logo=linkedin)](https://linkedin.com/in/votreprofil)
+[![GitHub](https://img.shields.io/badge/GitHub-@votreusername-181717?style=flat-square&logo=github)](https://github.com/BGH-dev22)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profil-0077B5?style=flat-square&logo=linkedin)](
+)
 
----
 
-## 🙏 Remerciements
-
-- [Spring Boot](https://spring.io/projects/spring-boot) - Framework backend
-- [Thymeleaf](https://www.thymeleaf.org/) - Moteur de templates
-- [Spring AI](https://spring.io/projects/spring-ai) - Intégration IA
-- [OpenAI](https://openai.com/) - API LLM
-
----
 
